@@ -7,26 +7,36 @@ use Shetabit\Sms\Abstracts\Driver;
 
 class Clockwork extends Driver
 {
-    protected array $settings;
-
     protected ClockworkClient $client;
 
-    public function __construct(array $settings)
+    /**
+     * @param array<string, mixed> $settings
+     */
+    public function __construct(array $settings = [])
     {
-        $this->settings = $settings;
-        $this->client = new ClockworkClient(data_get($this->settings, 'key'));
+        parent::__construct($settings);
+
+        $this->client = $this->createClient();
     }
 
-    public function send()
+    protected function createClient() : ClockworkClient
     {
-        $response = collect();
-        foreach ($this->recipients as $recipient) {
-            $response->put($recipient, $this->client->send([
-                'to' => $recipient,
-                'message' => $this->message->toString(),
-            ]));
-        }
+        return new ClockworkClient($this->setting('key'));
+    }
 
-        return (count($this->recipients) == 1) ? $response->first() : $response;
+    protected function sendTo(string $recipient) : mixed
+    {
+        return $this->client->send($this->payload($recipient));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function payload(string $recipient) : array
+    {
+        return [
+            'to' => $recipient,
+            'message' => $this->message->toString(),
+        ];
     }
 }

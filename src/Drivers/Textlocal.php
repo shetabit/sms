@@ -3,41 +3,44 @@
 namespace Shetabit\Sms\Drivers;
 
 use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
 use Shetabit\Sms\Abstracts\Driver;
 
 class Textlocal extends Driver
 {
-    protected array $settings;
-
     protected Client $client;
 
-    public function __construct(array $settings)
+    /**
+     * @param array<string, mixed> $settings
+     */
+    public function __construct(array $settings = [])
     {
-        $this->settings = $settings;
-        $this->client = new Client();
+        parent::__construct($settings);
+
+        $this->client = $this->createClient();
     }
 
-    public function send()
+    protected function createClient() : Client
     {
-        $response = collect();
-        foreach ($this->recipients as $recipient) {
-            $response->put(
-                $recipient,
-                $this->client->request('POST', data_get($this->settings, 'url'), $this->payload($recipient))
-            );
-        }
-
-        return (count($this->recipients) == 1) ? $response->first() : $response;
+        return new Client();
     }
 
-    public function payload($recipient)
+    protected function sendTo(string $recipient) : ResponseInterface
+    {
+        return $this->client->request('POST', $this->setting('url'), $this->payload($recipient));
+    }
+
+    /**
+     * @return array{form_params: array<string, string>}
+     */
+    protected function payload(string $recipient) : array
     {
         return [
             'form_params' => [
-                'username' => data_get($this->settings, 'username'),
-                'hash' => data_get($this->settings, 'hash'),
+                'username' => $this->setting('username'),
+                'hash' => $this->setting('hash'),
                 'numbers' => $recipient,
-                'sender' => urlencode(data_get($this->settings, 'sender')),
+                'sender' => $this->setting('sender'),
                 'message' => $this->message->toString(),
             ],
         ];

@@ -29,7 +29,7 @@ return [
             'secret' => 'Your AWS SNS Secret Key',
             'region' => 'Your AWS SNS Region',
             'sender' => 'Your AWS SNS Sender ID',
-            'type' => 'Tansactional', // Or: 'Promotional'
+            'type' => 'Transactional', // Or: 'Promotional'
         ],
         'textlocal' => [
             'url' => 'http://api.textlocal.in/send/', // Country Wise this may change.
@@ -66,11 +66,12 @@ return [
             'from' => 'Your Default From Number',
         ],
         'smsir' => [
-            'url' => 'https://ws.sms.ir/',
+            'url' => 'https://ws.sms.ir',
             'apiKey' => 'Your Api Key',
             'secretKey' => 'Your Secret Key',
             'from' => 'Your Default From Number',
         ],
+        // Requires: ext-soap
         'tsms' => [
             'url' => 'http://www.tsms.ir/soapWSDL/?wsdl',
             'username' => 'Your Username',
@@ -78,11 +79,12 @@ return [
             'from' => 'Your Default From Number',
         ],
         'farazsms' => [
-            'url' => '188.0.240.110/services.jspd',
+            'url' => 'http://188.0.240.110/services.jspd',
             'username' => 'Your Username',
             'password' => 'Your Password',
             'from' => 'Your Default From Number',
         ],
+        // Install: composer require smsgatewayme/client
         'smsgatewayme' => [
             'apiToken' => 'Your Api Token',
             'from' => 'Your Default Device ID',
@@ -113,5 +115,5 @@ return [
         'tsms' => \Shetabit\Sms\Drivers\Tsms::class,
         'farazsms' => \Shetabit\Sms\Drivers\Farazsms::class,
         'smsgatewayme' => \Shetabit\Sms\Drivers\SmsGatewayMe::class,
-    ]
+    ],
 ];

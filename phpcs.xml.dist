@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<ruleset name="Sms">
+    <description>The coding standard of the sms package.</description>
+
+    <file>config</file>
+    <file>src</file>
+    <file>tests</file>
+
+    <!-- Show progress and sniff codes, and colorize the output. -->
+    <arg name="colors"/>
+    <arg value="ps"/>
+
+    <!-- The soft limit on the line length is a warning, it must not fail the build. -->
+    <config name="ignore_warnings_on_exit" value="1"/>
+
+    <rule ref="PSR2"/>
+
+    <!--
+        The fakes below stand in for third party sdks whose methods are named in
+        PascalCase. A fake has to carry the name of the method it replaces.
+    -->
+    <rule ref="PSR1.Methods.CamelCapsMethodName">
+        <exclude-pattern>tests/Fakes/FakeKavenegarApi\.php</exclude-pattern>
+    </rule>
+</ruleset>

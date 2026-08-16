@@ -7,48 +7,50 @@ use Shetabit\Sms\Abstracts\Driver;
 
 class Sns extends Driver
 {
-    protected array $settings;
-
     protected SnsClient $client;
 
-    public function __construct(array $settings)
+    /**
+     * @param array<string, mixed> $settings
+     */
+    public function __construct(array $settings = [])
     {
-        $this->settings = $settings;
-        $this->client = new SnsClient([
+        parent::__construct($settings);
+
+        $this->client = $this->createClient();
+    }
+
+    protected function createClient() : SnsClient
+    {
+        return new SnsClient([
             'credentials' => [
-                'key' => data_get($this->settings, 'key'),
-                'secret' => data_get($this->settings, 'secret'),
+                'key' => $this->setting('key'),
+                'secret' => $this->setting('secret'),
             ],
-            'region' => data_get($this->settings, 'region'),
+            'region' => $this->setting('region'),
             'version' => '2010-03-31',
         ]);
     }
 
-    public function send()
+    protected function sendTo(string $recipient) : mixed
     {
-        $response = collect();
-        foreach ($this->recipients as $recipient) {
-            $response->put(
-                $recipient,
-                $this->client->publish($this->payload($recipient))
-            );
-        }
-
-        return (count($this->recipients) == 1) ? $response->first() : $response;
+        return $this->client->publish($this->payload($recipient));
     }
 
-    protected function payload($recipient)
+    /**
+     * @return array<string, mixed>
+     */
+    protected function payload(string $recipient) : array
     {
         return [
             'Message' => $this->message->toString(),
             'MessageAttributes' => [
                 'AWS.SNS.SMS.SenderID' => [
                     'DataType' => 'String',
-                    'StringValue' => data_get($this->settings, 'sender'),
+                    'StringValue' => $this->setting('sender'),
                 ],
                 'AWS.SNS.SMS.SMSType' => [
                     'DataType' => 'String',
-                    'StringValue' => data_get($this->settings, 'type'),
+                    'StringValue' => $this->setting('type'),
                 ],
             ],
             'PhoneNumber' => $recipient,

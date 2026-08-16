@@ -7,41 +7,42 @@ use Shetabit\Sms\Abstracts\Driver;
 
 class Farazsms extends Driver
 {
-    protected array $settings;
-
     protected Client $client;
 
-    public function __construct(array $settings)
+    /**
+     * @param array<string, mixed> $settings
+     */
+    public function __construct(array $settings = [])
     {
-        $this->settings = $settings;
-        $this->client = new Client();
+        parent::__construct($settings);
+
+        $this->client = $this->createClient();
     }
 
-    public function send()
+    protected function createClient() : Client
     {
-        $response = collect();
-
-        foreach ($this->recipients as $recipient) {
-            $result = $this->client->request(
-                'POST',
-                data_get($this->settings, 'url'),
-                $this->payload($recipient)
-            );
-            $response->put($recipient, json_decode((string) $result->getBody()));
-        }
-
-        return (count($this->recipients) == 1) ? $response->first() : $response;
+        return new Client();
     }
 
-    protected function payload($recipient): array
+    protected function sendTo(string $recipient) : mixed
+    {
+        $response = $this->client->request('POST', $this->setting('url'), $this->payload($recipient));
+
+        return json_decode((string) $response->getBody());
+    }
+
+    /**
+     * @return array{form_params: array<string, string>}
+     */
+    protected function payload(string $recipient) : array
     {
         return [
             'form_params' => [
-                'uname' => data_get($this->settings, 'username'),
-                'pass' => data_get($this->settings, 'password'),
-                'from' => data_get($this->settings, 'from'),
+                'uname' => $this->setting('username'),
+                'pass' => $this->setting('password'),
+                'from' => $this->setting('from'),
                 'message' => $this->message->toString(),
-                'to' => json_encode([$recipient]),
+                'to' => (string) json_encode([$recipient]),
                 'op' => 'send',
             ],
         ];
