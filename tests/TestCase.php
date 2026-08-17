@@ -2,29 +2,26 @@
 
 namespace Shetabit\Sms\Tests;
 
-use Orchestra\Testbench\TestCase as BaseTestCase;
-use Shetabit\Sms\Tests\Mocks\Drivers\BarDriver;
+use PHPUnit\Framework\TestCase as BaseTestCase;
+use Shetabit\Sms\Message;
 
-class TestCase extends BaseTestCase
+abstract class TestCase extends BaseTestCase
 {
-    protected function getPackageProviders($app)
+    /**
+     * The configuration that ships with the package.
+     *
+     * @return array{default: string, drivers: array<string, array<string, mixed>>, map: array<string, class-string>}
+     */
+    protected function packageConfig() : array
     {
-        return ['Shetabit\Sms\Provider\SmsServiceProvider'];
+        /** @var array{default: string, drivers: array<string, array<string, mixed>>, map: array<string, class-string>} $config */
+        $config = require dirname(__DIR__).'/config/sms.php';
+
+        return $config;
     }
 
-    protected function getPackageAliases($app)
+    protected function message(string $text = 'the message') : Message
     {
-        return [
-            'Sms' => 'Shetabit\Sms\Facade\Sms',
-        ];
-    }
-
-    protected function getEnvironmentSetUp($app)
-    {
-        $settings = require __DIR__.'/../src/Config/sms.php';
-        $settings['drivers']['bar'] = ['key' => 'foo'];
-        $settings['map']['bar'] = BarDriver::class;
-
-        $app['config']->set('sms', $settings);
+        return new Message($text);
     }
 }

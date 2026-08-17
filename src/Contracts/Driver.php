@@ -5,25 +5,14 @@ namespace Shetabit\Sms\Contracts;
 interface Driver
 {
     /**
-     * Add reciepeints (phone or mobile numbers)
-     *
-     * @param array $recipients
-     *
-     * @return self
+     * @param array<int, string> $recipients phone or mobile numbers
      */
-    public function to(array $recipients) : self;
+    public function to(array $recipients) : static;
+
+    public function message(Message $message) : static;
 
     /**
-     * Set related message.
-     *
-     * @return self
+     * The answer of the gateway, or a collection of them when there is more than one recipient.
      */
-    public function message(Message $message) : self;
-
-    /**
-     * Send message to recipients.
-     *
-     * @return array
-     */
-    public function send();
+    public function send() : mixed;
 }

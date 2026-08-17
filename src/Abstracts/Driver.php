@@ -2,45 +2,37 @@
 
 namespace Shetabit\Sms\Abstracts;
 
+use Illuminate\Support\Collection;
 use Shetabit\Sms\Contracts\Driver as DriverContract;
 use Shetabit\Sms\Contracts\Message;
 
 abstract class Driver implements DriverContract
 {
     /**
-     * Recipients
-     *
-     * @param array
+     * @var array<int, string>
      */
-    protected $recipients;
+    protected array $recipients = [];
+
+    protected Message $message;
 
     /**
-     * Message
-     *
-     * @var Message
+     * @param array<string, mixed> $settings
      */
-    protected $message;
-
-    /**
-     * Add reciepeints (phone or mobile numbers)
-     *
-     * @param array $recipients
-     *
-     * @return self
-     */
-    public function to(array $recipients) : self
+    public function __construct(protected array $settings = [])
     {
-        $this->recipients = $recipients;
+    }
+
+    /**
+     * @param array<int, string> $recipients
+     */
+    public function to(array $recipients) : static
+    {
+        $this->recipients = array_values($recipients);
 
         return $this;
     }
 
-    /**
-     * Set related message.
-     *
-     * @return self
-     */
-    public function message(Message $message) : self
+    public function message(Message $message) : static
     {
         $this->message = $message;
 
@@ -48,9 +40,34 @@ abstract class Driver implements DriverContract
     }
 
     /**
-     * Send message to recipients.
-     *
-     * @return array
+     * @return mixed the answer of the gateway for a single recipient,
+     *               a Collection keyed by recipient for several of them
      */
-    abstract public function send();
+    public function send() : mixed
+    {
+        /** @var Collection<string, mixed> $responses */
+        $responses = collect();
+
+        foreach ($this->recipients as $recipient) {
+            $responses->put($recipient, $this->sendTo($recipient));
+        }
+
+        return count($this->recipients) === 1 ? $responses->first() : $responses;
+    }
+
+    abstract protected function sendTo(string $recipient) : mixed;
+
+    protected function setting(string $key, string $default = '') : string
+    {
+        $value = $this->settings[$key] ?? null;
+
+        return is_scalar($value) ? (string) $value : $default;
+    }
+
+    protected function booleanSetting(string $key, bool $default = false) : bool
+    {
+        $value = $this->settings[$key] ?? null;
+
+        return is_scalar($value) ? (bool) $value : $default;
+    }
 }

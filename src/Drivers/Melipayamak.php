@@ -3,39 +3,49 @@
 namespace Shetabit\Sms\Drivers;
 
 use Melipayamak\MelipayamakApi;
+use Melipayamak\SmsRest;
 use Shetabit\Sms\Abstracts\Driver;
 
 class Melipayamak extends Driver
 {
-    protected array $settings;
-
     protected MelipayamakApi $client;
 
-    public function __construct(array $settings)
+    /**
+     * @param array<string, mixed> $settings
+     */
+    public function __construct(array $settings = [])
     {
-        $this->settings = $settings;
-        $this->client = new MelipayamakApi(data_get($this->settings, 'username'), data_get($this->settings, 'password'));
+        parent::__construct($settings);
+
+        $this->client = $this->createClient();
     }
 
-    public function asFlash($flash = true)
+    protected function createClient() : MelipayamakApi
+    {
+        return new MelipayamakApi($this->setting('username'), $this->setting('password'));
+    }
+
+    public function asFlash(bool $flash = true) : static
     {
         $this->settings['flash'] = $flash;
 
         return $this;
     }
 
-    public function send()
+    protected function sendTo(string $recipient) : mixed
     {
-        $response = collect();
-        foreach ($this->recipients as $recipient) {
-            $response->put($recipient, $this->client->sms()->send(
-                $recipient,
-                data_get($this->settings, 'from'),
-                $this->message->toString(),
-                data_get($this->settings, 'flash')
-            ));
-        }
+        /**
+         * @var SmsRest $sms
+         *
+         * @phpstan-ignore method.notFound (the sdk routes this through __call)
+         */
+        $sms = $this->client->sms();
 
-        return (count($this->recipients) == 1) ? $response->first() : $response;
+        return $sms->send(
+            $recipient,
+            $this->setting('from'),
+            $this->message->toString(),
+            $this->booleanSetting('flash')
+        );
     }
 }

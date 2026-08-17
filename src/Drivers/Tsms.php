@@ -2,38 +2,33 @@
 
 namespace Shetabit\Sms\Drivers;
 
-use \SoapClient;
 use Shetabit\Sms\Abstracts\Driver;
+use SoapClient;
 
 class Tsms extends Driver
 {
-    protected array $settings;
+    protected SoapClient|null $client = null;
 
-    protected SoapClient $client;
-
-    public function __construct(array $settings)
+    protected function createClient() : SoapClient
     {
-        $this->settings = $settings;
+        return new SoapClient($this->setting('url'));
     }
 
-    public function send()
+    protected function client() : SoapClient
     {
-        $this->client = new SoapClient(data_get($this->settings, 'url'));
-        $response = collect();
-        foreach ($this->recipients as $recipient) {
-            $result = $this->client->sendSms(
-                data_get($this->settings, 'username'),
-                data_get($this->settings, 'password'),
-                [data_get($this->settings, 'from')],
-                [$recipient],
-                [$this->message->toString()],
-                [],
-                rand()
-            );
+        return $this->client ??= $this->createClient();
+    }
 
-            $response->put($recipient, $result);
-        }
-
-        return (count($this->recipients) == 1) ? $response->first() : $response;
+    protected function sendTo(string $recipient) : mixed
+    {
+        return $this->client()->sendSms(
+            $this->setting('username'),
+            $this->setting('password'),
+            [$this->setting('from')],
+            [$recipient],
+            [$this->message->toString()],
+            [],
+            random_int(1, mt_getrandmax())
+        );
     }
 }

@@ -7,137 +7,89 @@ use Shetabit\Sms\Contracts\Message as MessageContract;
 use Shetabit\Sms\Exceptions\DriverNotFoundException;
 use Shetabit\Sms\Exceptions\InvalidMessageException;
 
+/**
+ * @phpstan-type SmsConfig array{
+ *     default?: string,
+ *     drivers?: array<string, array<string, mixed>>,
+ *     map?: array<string, class-string>,
+ * }
+ */
 class Sms
 {
-    /**
-     * Configuration.
-     *
-     * @var array
-     */
-    protected $config;
+    public const string SERVICE_NAME = 'shetabit-sms';
 
     /**
-     * Driver Settings.
-     *
-     * @var array
+     * @var array<string, mixed>
      */
-    protected $settings;
+    protected array $settings = [];
+
+    protected string $driver = '';
 
     /**
-     * Driver Name.
-     *
-     * @var string
+     * @var array<int, string>
      */
-    protected $driver;
+    protected array $recipients = [];
+
+    protected MessageContract|null $message = null;
 
     /**
-     * Driver Instance.
+     * @param SmsConfig $config
      *
-     * @var object
+     * @throws DriverNotFoundException
      */
-    protected $driverInstance;
-
-    /**
-     * Recipients
-     *
-     * @param array
-     */
-    protected $recipients = [];
-
-    /**
-     * Message.
-     *
-     * @var Message
-     */
-    protected $message;
-
-    /**
-     * Sms constructor.
-     *
-     * @param array $config
-     *
-     * @throws \Exception
-     */
-    public function __construct(array $config = [])
+    public function __construct(protected array $config = [])
     {
-        $this->config = $config;
-        $this->via($this->config['default']);
+        $this->via($this->config['default'] ?? '');
     }
 
     /**
-     * Set custom configs
-     * we can use this method when we want to use dynamic configs
+     * Overwrite the settings of the current driver at runtime.
      *
-     * @param $key
-     * @param $value|null
-     *
-     * @return $this
+     * @param array<string, mixed>|string $key
      */
-    public function config($key, $value = null)
+    public function config(array|string $key, mixed $value = null) : static
     {
-        $configs = [];
-
-        $key = is_array($key) ? $key : [$key => $value];
-
-        foreach ($key as $k => $v) {
-            $configs[$k] = $v;
-        }
-
-        $this->settings = array_merge($this->settings, $configs);
+        $this->settings = array_merge($this->settings, is_array($key) ? $key : [$key => $value]);
 
         return $this;
     }
 
     /**
-     * Change the driver on the fly.
-     *
-     * @param $driver
-     *
-     * @return $this
-     *
-     * @throws \Exception
+     * @throws DriverNotFoundException
      */
-    public function via($driver)
+    public function via(string $driver) : static
     {
         $this->driver = $driver;
         $this->validateDriver();
-        $this->settings = $this->config['drivers'][$driver];
+        $this->settings = $this->config['drivers'][$driver] ?? [];
+
+        return $this;
+    }
+
+    public function getDriver() : string
+    {
+        return $this->driver;
+    }
+
+    /**
+     * @param array<int, string> $recipients
+     */
+    public function to(array $recipients) : static
+    {
+        $this->recipients = array_values($recipients);
 
         return $this;
     }
 
     /**
-     * Set recipients.
-     *
-     * @param array $recipients
-     *
-     * @return self
+     * @param array<int, string> $recipients
      */
-    public function to(array $recipients) : self
+    public function recipients(array $recipients) : static
     {
-        $this->recipients = $recipients;
-
-        return $this;
+        return $this->to($recipients);
     }
 
-    /**
-     * @alias to
-     *
-     * @return self
-     */
-    public function recipients(array $recipients) : self
-    {
-        return $this->recipients($recipients);
-    }
-
-    /**
-     * Set message instance.
-     *
-     * @param string|Message $message
-     *
-     * @return self
-     */
-    public function message($message)
+    public function message(MessageContract|string $message) : static
     {
         $this->message = is_string($message) ? new Message($message) : $message;
 
@@ -145,89 +97,60 @@ class Sms
     }
 
     /**
-     * Sends the sms message.
-     *
-     * @param $finalizeCallback|null
-     *
-     * @return ReceiptInterface
-     *
+     * @throws DriverNotFoundException
      * @throws InvalidMessageException
      */
-    public function send()
+    public function send() : mixed
     {
-        $this->validateMessage();
+        $message = $this->message;
 
-        $this
+        if (! $message instanceof MessageContract) {
+            throw new InvalidMessageException('Message not selected or does not exist.');
+        }
+
+        return $this
             ->getDriverInstance()
             ->to($this->recipients)
-            ->message($this->message)
+            ->message($message)
             ->send();
     }
 
     /**
-     * Validate Message.
-     *
-     * @throws InvalidMessageException
+     * @throws DriverNotFoundException
      */
-    protected function validateMessage()
-    {
-        if (empty($this->message) || ! $this->message instanceof MessageContract) {
-            throw new InvalidMessageException('Message not selected or does not exist.');
-        }
-    }
-
-    /**
-     * Retrieve current driver instance or generate new one.
-     *
-     * @return mixed
-     * @throws \Exception
-     */
-    protected function getDriverInstance()
-    {
-        if (!empty($this->driverInstance)) {
-            return $this->driverInstance;
-        }
-
-        return $this->getFreshDriverInstance();
-    }
-
-    /**
-     * Get new driver instance
-     *
-     * @return mixed
-     * @throws \Exception
-     */
-    protected function getFreshDriverInstance()
+    protected function getDriverInstance() : Driver
     {
         $this->validateDriver();
-        $class = $this->config['map'][$this->driver];
 
-        return new $class($this->settings);
+        $class = $this->config['map'][$this->driver] ?? '';
+
+        /** @var Driver $instance */
+        $instance = new $class($this->settings);
+
+        return $instance;
     }
 
     /**
-     * Validate driver.
-     *
-     * @throws \Exception
+     * @throws DriverNotFoundException
      */
-    protected function validateDriver()
+    protected function validateDriver() : void
     {
-        if (empty($this->driver)) {
+        if ($this->driver === '') {
             throw new DriverNotFoundException('Driver not selected or default driver does not exist.');
         }
 
-        if (empty($this->config['drivers'][$this->driver]) || empty($this->config['map'][$this->driver])) {
+        $class = $this->config['map'][$this->driver] ?? null;
+
+        if (empty($this->config['drivers'][$this->driver]) || $class === null) {
             throw new DriverNotFoundException('Driver not found in config file. Try updating the package.');
         }
 
-        if (!class_exists($this->config['map'][$this->driver])) {
+        if (! class_exists($class)) {
             throw new DriverNotFoundException('Driver source not found. Please update the package.');
         }
 
-        $reflect = new \ReflectionClass($this->config['map'][$this->driver]);
-
-        if (!$reflect->implementsInterface(Driver::class)) {
-            throw new \Exception("Driver must be an instance of Contracts\Driver.");
+        if (! is_subclass_of($class, Driver::class)) {
+            throw new DriverNotFoundException(sprintf('Driver [%s] must be an instance of %s.', $class, Driver::class));
         }
     }
 }

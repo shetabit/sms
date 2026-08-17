@@ -2,46 +2,45 @@
 
 namespace Shetabit\Sms\Drivers;
 
+use Shetabit\Sms\Abstracts\Driver;
 use SMSGatewayMe\Client\Api\MessageApi;
 use SMSGatewayMe\Client\ApiClient;
 use SMSGatewayMe\Client\Configuration;
 use SMSGatewayMe\Client\Model\SendMessageRequest;
-use Shetabit\Sms\Abstracts\Driver;
 
 class SmsGatewayMe extends Driver
 {
-    protected array $settings;
-
     protected MessageApi $client;
 
-    public function __construct(array $settings)
+    /**
+     * @param array<string, mixed> $settings
+     */
+    public function __construct(array $settings = [])
     {
-        $this->settings = $settings;
+        parent::__construct($settings);
 
-        $config = Configuration::getDefaultConfiguration()
-            ->setApiKey('Authorization', data_get($this->settings, 'apiToken'));
-        $this->client = new MessageApi(new ApiClient($config));
+        $this->client = $this->createClient();
     }
 
-    public function send()
+    protected function createClient() : MessageApi
     {
-        $response = collect();
-        foreach ($this->recipients as $recipient) {
-            $response->put(
-                $recipient,
-                $this->client->sendMessages($this->payload($recipient))
-            );
-        }
+        $configuration = new Configuration();
+        $configuration->setApiKey('Authorization', $this->setting('apiToken'));
 
-        return (count($this->recipients) == 1) ? $response->first() : $response;
+        return new MessageApi(new ApiClient($configuration));
     }
 
-    protected function payload($recipient)
+    protected function sendTo(string $recipient) : mixed
+    {
+        return $this->client->sendMessages([$this->payload($recipient)]);
+    }
+
+    protected function payload(string $recipient) : SendMessageRequest
     {
         return new SendMessageRequest([
             'phoneNumber' => $recipient,
             'message' => $this->message->toString(),
-            'deviceId' => data_get($this->settings, 'from'),
+            'deviceId' => (int) $this->setting('from'),
         ]);
     }
 }

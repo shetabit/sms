@@ -4,76 +4,48 @@ namespace Shetabit\Sms;
 
 use Shetabit\Sms\Contracts\Message as MessageContract;
 
-Class Message implements MessageContract
+class Message implements MessageContract
 {
-    /**
-     * Plain text message
-     *
-     * @param string
-     */
-    protected $message;
+    protected int|string|null $templateIdentifier = null;
 
     /**
-     * Template options.
-     *
-     * @var array
+     * @var array<int|string, mixed>
      */
-    protected $template = [
-        'identifier' => null,
-        'params' => null,
-    ];
+    protected array $templateParams = [];
 
-    /**
-     * Message constructor
-     *
-     * @param string $message
-     */
-    public function __construct(string $message)
+    public function __construct(protected readonly string $message)
     {
-        $this->message = $message;
     }
 
-    /**
-     * Retrieve string format of message.
-     *
-     * @return string
-     */
     public function toString() : string
     {
         return $this->message;
     }
 
     /**
-     * Retrieve string format of message.
-     *
-     * @param int|string $templateIdentifier
-     * @param array $params
-     *
-     * @return self
+     * @param array<int|string, mixed> $params
      */
-    public function useTemplateIfSupports($templateIdentifier, array $params)
+    public function useTemplateIfSupports(int|string $templateIdentifier, array $params) : static
     {
-        $this->template['identifier'] = $templateIdentifier;
-        $this->template['params'] = $params;
+        $this->templateIdentifier = $templateIdentifier;
+        $this->templateParams = $params;
 
         return $this;
     }
 
-    /**
-     * Determine if message uses a template.
-     */
     public function usesTemplate() : bool
     {
-        return ! is_null($this->template['identifier']);
+        return $this->templateIdentifier !== null;
     }
 
     /**
-     * Retrieve template options.
-     *
-     * @return array
+     * @return array{identifier: int|string|null, params: array<int|string, mixed>}
      */
     public function getTemplate() : array
     {
-        return $this->template;
+        return [
+            'identifier' => $this->templateIdentifier,
+            'params' => $this->templateParams,
+        ];
     }
 }
