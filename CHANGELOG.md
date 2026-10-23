@@ -30,6 +30,8 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
   machine.
 - `phpcs.xml.dist`, `phpstan.neon.dist` (level 7 with larastan), `rector.php` and the `composer analyse`,
   `composer test-coverage`, `composer rector` and `composer ci` scripts.
+- The `amootsms` driver for [AmootSMS](https://www.amootsms.com/), which sends through the REST API of the gateway.
+  A message that uses a template is sent as a pattern of AmootSMS.
 
 ### Changed
 

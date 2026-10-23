@@ -43,6 +43,7 @@ This is a Laravel package for sms gateway integration. This package requires `PH
 
 | Driver | Gateway | Needs |
 | --- | --- | --- |
+| `amootsms` | [AmootSMS](https://www.amootsms.com/) | — |
 | `clockwork` | [Clockwork](https://www.clockworksms.com/) | `composer require mediaburst/clockworksms` |
 | `farazsms` | [Faraz SMS](https://farazsms.com/) | — |
 | `kavenegar` | [Kavenegar](https://kavenegar.com/) | `composer require kavenegar/php` |
@@ -169,6 +170,9 @@ Sms::via('kavenegar')->to(['09xxxxxxxxx'])->message($message)->send();
 ```
 
 Drivers that do not know templates ignore them and send the plain text instead.
+
+The `amootsms` driver sends such a message as a pattern of AmootSMS: the identifier is the code of the pattern and the
+params are the values of its variables, in the order the pattern lists them.
 
 ### Notifications
 

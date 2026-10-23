@@ -89,6 +89,11 @@ return [
             'apiToken' => 'Your Api Token',
             'from' => 'Your Default Device ID',
         ],
+        'amootsms' => [
+            'url' => 'https://portal.amootsms.com/rest',
+            'token' => 'Your Token',
+            'from' => 'Your Default From Number',
+        ],
     ],
 
     /*
@@ -115,5 +120,6 @@ return [
         'tsms' => \Shetabit\Sms\Drivers\Tsms::class,
         'farazsms' => \Shetabit\Sms\Drivers\Farazsms::class,
         'smsgatewayme' => \Shetabit\Sms\Drivers\SmsGatewayMe::class,
+        'amootsms' => \Shetabit\Sms\Drivers\Amootsms::class,
     ],
 ];
