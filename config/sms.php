@@ -89,6 +89,11 @@ return [
             'apiToken' => 'Your Api Token',
             'from' => 'Your Default Device ID',
         ],
+        'ghasedak' => [
+            'url' => 'https://gateway.ghasedak.me/rest/api/v1/WebService',
+            'apiKey' => 'Your Api Key',
+            'from' => 'Your Default From Number',
+        ],
     ],
 
     /*
@@ -115,5 +120,6 @@ return [
         'tsms' => \Shetabit\Sms\Drivers\Tsms::class,
         'farazsms' => \Shetabit\Sms\Drivers\Farazsms::class,
         'smsgatewayme' => \Shetabit\Sms\Drivers\SmsGatewayMe::class,
+        'ghasedak' => \Shetabit\Sms\Drivers\Ghasedak::class,
     ],
 ];
