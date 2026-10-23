@@ -30,6 +30,8 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
   machine.
 - `phpcs.xml.dist`, `phpstan.neon.dist` (level 7 with larastan), `rector.php` and the `composer analyse`,
   `composer test-coverage`, `composer rector` and `composer ci` scripts.
+- The `magfa` driver for [Magfa](https://magfa.com/), which sends through version 2 of the HTTP API of the gateway
+  and signs in with the user name, the domain and the service password of the account.
 
 ### Changed
 

@@ -89,6 +89,13 @@ return [
             'apiToken' => 'Your Api Token',
             'from' => 'Your Default Device ID',
         ],
+        'magfa' => [
+            'url' => 'https://sms.magfa.com/api/http/sms/v2',
+            'username' => 'Your Username',
+            'password' => 'Your Service Password',
+            'domain' => 'Your Domain',
+            'from' => 'Your Default From Number',
+        ],
     ],
 
     /*
@@ -115,5 +122,6 @@ return [
         'tsms' => \Shetabit\Sms\Drivers\Tsms::class,
         'farazsms' => \Shetabit\Sms\Drivers\Farazsms::class,
         'smsgatewayme' => \Shetabit\Sms\Drivers\SmsGatewayMe::class,
+        'magfa' => \Shetabit\Sms\Drivers\Magfa::class,
     ],
 ];

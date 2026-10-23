@@ -47,6 +47,7 @@ This is a Laravel package for sms gateway integration. This package requires `PH
 | `farazsms` | [Faraz SMS](https://farazsms.com/) | — |
 | `kavenegar` | [Kavenegar](https://kavenegar.com/) | `composer require kavenegar/php` |
 | `linkmobility` | [LINK Mobility](https://www.linkmobility.com/) | — |
+| `magfa` | [Magfa](https://magfa.com/) | — |
 | `melipayamak` | [Melipayamak](https://www.melipayamak.com/) | `composer require melipayamak/php` |
 | `smsgatewayme` | [SMSGateway.me](https://smsgateway.me/) | `composer require smsgatewayme/client` |
 | `smsir` | [SMS.ir](https://sms.ir/) | — |
