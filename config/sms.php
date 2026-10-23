@@ -65,10 +65,10 @@ return [
             'apiKey' => 'Your Api Key',
             'from' => 'Your Default From Number',
         ],
+        // A 'secretKey' next to the 'apiKey' sends through the legacy api of the gateway, https://ws.sms.ir, instead.
         'smsir' => [
-            'url' => 'https://ws.sms.ir',
+            'url' => 'https://api.sms.ir',
             'apiKey' => 'Your Api Key',
-            'secretKey' => 'Your Secret Key',
             'from' => 'Your Default From Number',
         ],
         // Requires: ext-soap

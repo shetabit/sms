@@ -33,7 +33,75 @@ class Smsir extends Driver
      */
     protected function sendTo(string $recipient) : ResponseInterface
     {
-        return $this->client->request('POST', $this->url('/api/MessageSend'), $this->payload($recipient));
+        if ($this->usesLegacyApi()) {
+            return $this->client->request('POST', $this->url('/api/MessageSend'), $this->payload($recipient));
+        }
+
+        if ($this->message->usesTemplate()) {
+            return $this->client->request('POST', $this->url('/v1/send/verify'), $this->verifyPayload($recipient));
+        }
+
+        return $this->client->request('POST', $this->url('/v1/send/bulk'), $this->bulkPayload($recipient));
+    }
+
+    /**
+     * The legacy api of the gateway signs in with a secret key next to the api key, the current one with an api key
+     * alone. A configuration that still carries a secret key, like one published from an earlier version, keeps
+     * talking to the legacy api.
+     */
+    protected function usesLegacyApi() : bool
+    {
+        return $this->setting('secretKey') !== '';
+    }
+
+    /**
+     * @return array{json: array<string, mixed>, headers: array<string, string>, connect_timeout: int}
+     */
+    protected function bulkPayload(string $recipient) : array
+    {
+        return [
+            'json' => [
+                'lineNumber' => $this->setting('from'),
+                'messageText' => $this->message->toString(),
+                'mobiles' => [$recipient],
+            ],
+            'headers' => $this->apiKeyHeaders(),
+            'connect_timeout' => 30,
+        ];
+    }
+
+    /**
+     * @return array{json: array<string, mixed>, headers: array<string, string>, connect_timeout: int}
+     */
+    protected function verifyPayload(string $recipient) : array
+    {
+        $template = $this->message->getTemplate();
+        $parameters = [];
+
+        foreach ($template['params'] as $name => $value) {
+            $parameters[] = ['name' => (string) $name, 'value' => (string) $value];
+        }
+
+        return [
+            'json' => [
+                'mobile' => $recipient,
+                'templateId' => (int) $template['identifier'],
+                'parameters' => $parameters,
+            ],
+            'headers' => $this->apiKeyHeaders(),
+            'connect_timeout' => 30,
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function apiKeyHeaders() : array
+    {
+        return [
+            'X-API-KEY' => $this->setting('apiKey'),
+            'Accept' => 'application/json',
+        ];
     }
 
     /**

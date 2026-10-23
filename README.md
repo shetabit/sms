@@ -170,6 +170,9 @@ Sms::via('kavenegar')->to(['09xxxxxxxxx'])->message($message)->send();
 
 Drivers that do not know templates ignore them and send the plain text instead.
 
+The `smsir` driver sends such a message through the verify endpoint of SMS.ir: the identifier is the id of the template
+and the params are the values of its parameters, keyed by their names.
+
 ### Notifications
 
 The package ships a notification channel. Let `via()` return it and build the message in a `toSms()` method:
