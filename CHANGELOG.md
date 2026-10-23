@@ -58,10 +58,10 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 - The smsir driver fetches its token once and reuses it for every recipient.
 - The twilio driver goes through the `$client->messages` shortcut of the SDK instead of `$client->account->messages`.
 - The whole of `src/` carries parameter, return and property types, and passes PHPStan at level 7.
-- The smsir driver sends through the current REST API of SMS.ir (`api.sms.ir`), which signs in with the api key
-  alone, and sends a message that uses a template through its verify endpoint. A configuration that still carries a
-  `secretKey`, like one published from an earlier version, keeps using the legacy api (`ws.sms.ir`) as before;
-  dropping the key and pointing the `url` to `https://api.sms.ir` moves it over to the current one.
+- **Breaking:** the smsir driver sends through the current REST API of SMS.ir (`api.sms.ir`), which signs in with the
+  api key alone, and sends a message that uses a template through its verify endpoint. The legacy api (`ws.sms.ir`)
+  and its `secretKey` are gone: a configuration published from an earlier version has to drop the `secretKey`, point
+  the `url` to `https://api.sms.ir` and carry an api key from the current panel of SMS.ir.
 
 ### Fixed
 
