@@ -6,6 +6,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use GuzzleHttp\Client;
 use Shetabit\Sms\Abstracts\Driver;
+use Shetabit\Sms\Exceptions\InvalidMessageException;
 
 class Amootsms extends Driver
 {
@@ -26,6 +27,9 @@ class Amootsms extends Driver
         return new Client();
     }
 
+    /**
+     * @throws InvalidMessageException
+     */
     protected function sendTo(string $recipient) : mixed
     {
         if (! $this->message->usesTemplate()) {
@@ -66,6 +70,8 @@ class Amootsms extends Driver
 
     /**
      * @return array<string, string>
+     *
+     * @throws InvalidMessageException
      */
     protected function patternForm(string $recipient) : array
     {
@@ -74,9 +80,29 @@ class Amootsms extends Driver
         return [
             'Mobile' => $recipient,
             'PatternCodeID' => (string) $template['identifier'],
-            // The values fill the variables of the pattern in their order.
-            'PatternValues' => implode(',', $template['params']),
+            'PatternValues' => $this->patternValues($template['params']),
         ];
+    }
+
+    /**
+     * The gateway takes the values comma separated, in the order the pattern lists its variables, so a comma inside a
+     * value would push the rest of it into the next variable.
+     *
+     * @param array<int|string, mixed> $params
+     *
+     * @throws InvalidMessageException
+     */
+    protected function patternValues(array $params) : string
+    {
+        foreach ($params as $key => $value) {
+            if (str_contains((string) $value, ',')) {
+                throw new InvalidMessageException(
+                    sprintf('The value [%s] of an AmootSMS pattern must not contain a comma.', $key)
+                );
+            }
+        }
+
+        return implode(',', $params);
     }
 
     protected function url(string $path) : string

@@ -172,7 +172,8 @@ Sms::via('kavenegar')->to(['09xxxxxxxxx'])->message($message)->send();
 Drivers that do not know templates ignore them and send the plain text instead.
 
 The `amootsms` driver sends such a message as a pattern of AmootSMS: the identifier is the code of the pattern and the
-params are the values of its variables, in the order the pattern lists them.
+params are the values of its variables, in the order the pattern lists them. The gateway takes the values comma
+separated, so a value with a comma in it is refused with an `InvalidMessageException`.
 
 ### Notifications
 

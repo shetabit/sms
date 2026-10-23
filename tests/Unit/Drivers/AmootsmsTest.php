@@ -5,6 +5,7 @@ namespace Shetabit\Sms\Tests\Unit\Drivers;
 use DateTimeImmutable;
 use DateTimeZone;
 use Shetabit\Sms\Drivers\Amootsms;
+use Shetabit\Sms\Exceptions\InvalidMessageException;
 
 final class AmootsmsTest extends DriverTestCase
 {
@@ -65,6 +66,23 @@ final class AmootsmsTest extends DriverTestCase
             ['Mobile' => '09120000001', 'PatternCodeID' => '1234', 'PatternValues' => 'first,second'],
             $this->requestForm()
         );
+    }
+
+    public function testItRefusesAPatternValueWithACommaBeforeAnythingIsSent() : void
+    {
+        $driver = $this->driver();
+        $this->fakeHttp($driver, [$this->jsonResponse([])]);
+
+        $message = $this->message()->useTemplateIfSupports(1234, ['12345', 'Tehran, Iran']);
+
+        $this->expectException(InvalidMessageException::class);
+        $this->expectExceptionMessage('The value [1] of an AmootSMS pattern must not contain a comma.');
+
+        try {
+            $this->send($driver, ['09120000001'], $message);
+        } finally {
+            $this->assertSame(0, $this->requestCount());
+        }
     }
 
     public function testItDoesNotDoubleTheSlashOfAConfiguredUrl() : void
