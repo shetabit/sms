@@ -89,6 +89,13 @@ return [
             'apiToken' => 'Your Api Token',
             'from' => 'Your Default Device ID',
         ],
+        'asanak' => [
+            'url' => 'https://sms.asanak.ir/webservice/v2rest',
+            'username' => 'Your Username',
+            'password' => 'Your Password',
+            'from' => 'Your Default From Number',
+            'sendToBlackList' => true, // Deliver to numbers that blocked advertising messages as well.
+        ],
     ],
 
     /*
@@ -115,5 +122,6 @@ return [
         'tsms' => \Shetabit\Sms\Drivers\Tsms::class,
         'farazsms' => \Shetabit\Sms\Drivers\Farazsms::class,
         'smsgatewayme' => \Shetabit\Sms\Drivers\SmsGatewayMe::class,
+        'asanak' => \Shetabit\Sms\Drivers\Asanak::class,
     ],
 ];

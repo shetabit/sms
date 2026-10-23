@@ -30,6 +30,8 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
   machine.
 - `phpcs.xml.dist`, `phpstan.neon.dist` (level 7 with larastan), `rector.php` and the `composer analyse`,
   `composer test-coverage`, `composer rector` and `composer ci` scripts.
+- The `asanak` driver for [Asanak](https://asanak.com/), which sends through the REST API of the gateway. A message
+  that uses a template is sent through the templates of Asanak.
 
 ### Changed
 
