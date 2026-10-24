@@ -100,6 +100,7 @@ return [
             'password' => 'Your Password',
             'from' => 'Your Default From Number',
             'sendToBlackList' => true, // Deliver to numbers that blocked advertising messages as well.
+        ],
         'ghasedak' => [
             'url' => 'https://gateway.ghasedak.me/rest/api/v1/WebService',
             'apiKey' => 'Your Api Key',
