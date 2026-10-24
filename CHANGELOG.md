@@ -57,7 +57,6 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 - Every driver builds its gateway client in a `createClient()` method of its own instead of inline in the constructor.
 - The tsms driver builds its SOAP client on the first send and reuses it, instead of downloading the wsdl document of
   the gateway on every call to `send()`, and draws its message id with `random_int()` instead of `rand()`.
-- The smsir driver fetches its token once and reuses it for every recipient.
 - The twilio driver goes through the `$client->messages` shortcut of the SDK instead of `$client->account->messages`.
 - The whole of `src/` carries parameter, return and property types, and passes PHPStan at level 7.
 - **Breaking:** the smsir driver sends through the current REST API of SMS.ir (`api.sms.ir`), which signs in with the

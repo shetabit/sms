@@ -31,7 +31,7 @@ final class SmsirTest extends DriverTestCase
         $this->assertSame('the-api-key', $this->request()->getHeaderLine('X-API-KEY'));
         $this->assertSame('application/json', $this->request()->getHeaderLine('Accept'));
         $this->assertSame(
-            ['lineNumber' => '30001', 'messageText' => 'the message', 'mobiles' => ['09120000001']],
+            ['lineNumber' => 30001, 'messageText' => 'the message', 'mobiles' => ['09120000001']],
             $this->requestJson()
         );
     }

@@ -41,7 +41,7 @@ class Smsir extends Driver
     {
         return [
             'json' => [
-                'lineNumber' => $this->setting('from'),
+                'lineNumber' => (int) $this->setting('from'),
                 'messageText' => $this->message->toString(),
                 'mobiles' => [$recipient],
             ],
