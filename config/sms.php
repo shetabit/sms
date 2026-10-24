@@ -94,6 +94,13 @@ return [
             'apiKey' => 'Your Api Key',
             'from' => 'Your Default From Number',
         ],
+        'asanak' => [
+            'url' => 'https://sms.asanak.ir/webservice/v2rest',
+            'username' => 'Your Username',
+            'password' => 'Your Password',
+            'from' => 'Your Default From Number',
+            'sendToBlackList' => true, // Deliver to numbers that blocked advertising messages as well.
+        ],
         'ghasedak' => [
             'url' => 'https://gateway.ghasedak.me/rest/api/v1/WebService',
             'apiKey' => 'Your Api Key',
@@ -104,6 +111,10 @@ return [
             'username' => 'Your Username',
             'password' => 'Your Service Password',
             'domain' => 'Your Domain',
+        ],
+        'amootsms' => [
+            'url' => 'https://portal.amootsms.com/rest',
+            'token' => 'Your Token',
             'from' => 'Your Default From Number',
         ],
     ],
@@ -133,7 +144,9 @@ return [
         'farazsms' => \Shetabit\Sms\Drivers\Farazsms::class,
         'smsgatewayme' => \Shetabit\Sms\Drivers\SmsGatewayMe::class,
         'ippanel' => \Shetabit\Sms\Drivers\Ippanel::class,
+        'asanak' => \Shetabit\Sms\Drivers\Asanak::class,
         'ghasedak' => \Shetabit\Sms\Drivers\Ghasedak::class,
         'magfa' => \Shetabit\Sms\Drivers\Magfa::class,
+        'amootsms' => \Shetabit\Sms\Drivers\Amootsms::class,
     ],
 ];
