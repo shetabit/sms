@@ -106,6 +106,12 @@ return [
             'apiKey' => 'Your Api Key',
             'from' => 'Your Default From Number',
         ],
+        'magfa' => [
+            'url' => 'https://sms.magfa.com/api/http/sms/v2',
+            'username' => 'Your Username',
+            'password' => 'Your Service Password',
+            'domain' => 'Your Domain',
+        ],
         'amootsms' => [
             'url' => 'https://portal.amootsms.com/rest',
             'token' => 'Your Token',
@@ -140,6 +146,7 @@ return [
         'ippanel' => \Shetabit\Sms\Drivers\Ippanel::class,
         'asanak' => \Shetabit\Sms\Drivers\Asanak::class,
         'ghasedak' => \Shetabit\Sms\Drivers\Ghasedak::class,
+        'magfa' => \Shetabit\Sms\Drivers\Magfa::class,
         'amootsms' => \Shetabit\Sms\Drivers\Amootsms::class,
     ],
 ];
