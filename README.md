@@ -172,10 +172,13 @@ Sms::via('kavenegar')->to(['09xxxxxxxxx'])->message($message)->send();
 
 Drivers that do not know templates ignore them and send the plain text instead.
 
-The `ippanel` driver sends such a message as a pattern of IPPanel: the identifier is the code of the pattern and the
+- The `ippanel` driver sends such a message as a pattern of IPPanel: the identifier is the code of the pattern and the
 params are the values of its variables, keyed by their names.
 
-The `ghasedak` driver sends such a message through the OTP templates of Ghasedak: the identifier is the name of the
+- The `smsir` driver sends such a message through the verify endpoint of SMS.ir: the identifier is the id of the template
+and the params are the values of its parameters, keyed by their names.
+
+- The `ghasedak` driver sends such a message through the OTP templates of Ghasedak: the identifier is the name of the
 template and the params are the values of its inputs, keyed by their names.
 
 ### Notifications
