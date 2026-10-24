@@ -37,7 +37,9 @@ class Ippanel extends Driver
     protected function payload(string $recipient) : array
     {
         return [
-            'json' => $this->message->usesTemplate() ? $this->patternBody($recipient) : $this->webserviceBody($recipient),
+            'json' => $this->message->usesTemplate()
+                ? $this->patternBody($recipient)
+                : $this->webserviceBody($recipient),
             'headers' => [
                 'Authorization' => $this->setting('apiKey'),
             ],
