@@ -95,6 +95,11 @@ return [
             'apiKey' => 'Your Api Key',
             'from' => 'Your Default From Number',
         ],
+        'ghasedak' => [
+            'url' => 'https://gateway.ghasedak.me/rest/api/v1/WebService',
+            'apiKey' => 'Your Api Key',
+            'from' => 'Your Default From Number',
+        ],
     ],
 
     /*
@@ -122,5 +127,6 @@ return [
         'farazsms' => \Shetabit\Sms\Drivers\Farazsms::class,
         'smsgatewayme' => \Shetabit\Sms\Drivers\SmsGatewayMe::class,
         'ippanel' => \Shetabit\Sms\Drivers\Ippanel::class,
+        'ghasedak' => \Shetabit\Sms\Drivers\Ghasedak::class,
     ],
 ];
