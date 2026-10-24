@@ -32,6 +32,8 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
   `composer test-coverage`, `composer rector` and `composer ci` scripts.
 - The `ippanel` driver for [IPPanel](https://ippanel.com/), which sends through the REST API of the gateway. A message
   that uses a template is sent as a pattern of IPPanel.
+- The `asanak` driver for [Asanak](https://asanak.com/), which sends through the REST API of the gateway. A message
+  that uses a template is sent through the templates of Asanak.
 - The `ghasedak` driver for [Ghasedak](https://ghasedak.me/), which sends through the REST API of the gateway. A
   message that uses a template is sent through the OTP templates of Ghasedak.
 
