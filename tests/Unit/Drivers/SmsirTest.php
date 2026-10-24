@@ -2,8 +2,8 @@
 
 namespace Shetabit\Sms\Tests\Unit\Drivers;
 
+use Psr\Http\Message\ResponseInterface;
 use Shetabit\Sms\Drivers\Smsir;
-use Shetabit\Sms\Exceptions\SendingFailedException;
 
 final class SmsirTest extends DriverTestCase
 {
@@ -17,61 +17,90 @@ final class SmsirTest extends DriverTestCase
         return Smsir::class;
     }
 
-    public function testItFetchesATokenAndSendsTheMessageWithIt() : void
+    public function testItSendsAPlainMessageThroughTheBulkEndpoint() : void
     {
-        $driver = $this->driver(['apiKey' => 'the-api-key', 'secretKey' => 'the-secret', 'from' => '30001']);
-        $this->fakeHttp($driver, [
-            $this->jsonResponse(['TokenKey' => 'the-token']),
-            $this->jsonResponse(['IsSuccessful' => true]),
-        ]);
+        $driver = $this->driver(['apiKey' => 'the-api-key', 'from' => '30001']);
+        $this->fakeHttp($driver, [$this->jsonResponse(['status' => 1])]);
 
-        $this->send($driver, ['09120000001']);
+        $answer = $this->send($driver, ['09120000001']);
 
-        $this->assertSame(2, $this->requestCount());
-        $this->assertSame(['UserApiKey' => 'the-api-key', 'SecretKey' => 'the-secret'], $this->requestJson(0));
+        $this->assertInstanceOf(ResponseInterface::class, $answer);
+        $this->assertSame(1, $this->requestCount());
+        $this->assertSame('POST', $this->request()->getMethod());
+        $this->assertSame('https://api.sms.ir/v1/send/bulk', $this->requestUrl());
+        $this->assertSame('the-api-key', $this->request()->getHeaderLine('X-API-KEY'));
+        $this->assertSame('application/json', $this->request()->getHeaderLine('Accept'));
         $this->assertSame(
-            ['Messages' => ['the message'], 'MobileNumbers' => ['09120000001'], 'LineNumber' => '30001'],
-            $this->requestJson(1)
+            ['lineNumber' => 30001, 'messageText' => 'the message', 'mobiles' => ['09120000001']],
+            $this->requestJson()
         );
-        $this->assertSame('the-token', $this->request(1)->getHeaderLine('x-sms-ir-secure-token'));
+    }
+
+    public function testItSendsAVerifyMessageWhenTheMessageUsesATemplate() : void
+    {
+        $driver = $this->driver(['apiKey' => 'the-api-key']);
+        $this->fakeHttp($driver, [$this->jsonResponse(['status' => 1])]);
+
+        $message = $this->message()->useTemplateIfSupports('123456', ['Code' => '12345', 'Name' => 'the name']);
+
+        $this->send($driver, ['09120000001'], $message);
+
+        $this->assertSame('https://api.sms.ir/v1/send/verify', $this->requestUrl());
+        $this->assertSame('the-api-key', $this->request()->getHeaderLine('X-API-KEY'));
+        $this->assertSame(
+            [
+                'mobile' => '09120000001',
+                'templateId' => 123456,
+                'parameters' => [
+                    ['name' => 'Code', 'value' => '12345'],
+                    ['name' => 'Name', 'value' => 'the name'],
+                ],
+            ],
+            $this->requestJson()
+        );
+    }
+
+    public function testItSendsTheParametersOfTheTemplateAsStrings() : void
+    {
+        $driver = $this->driver();
+        $this->fakeHttp($driver, [$this->jsonResponse([])]);
+
+        $this->send($driver, ['09120000001'], $this->message()->useTemplateIfSupports(123456, ['Code' => 12345]));
+
+        $this->assertSame([['name' => 'Code', 'value' => '12345']], $this->requestJson()['parameters']);
     }
 
     public function testItDoesNotDoubleTheSlashOfAConfiguredUrl() : void
     {
-        $driver = $this->driver(['url' => 'https://ws.sms.ir/']);
-        $this->fakeHttp($driver, [$this->jsonResponse(['TokenKey' => 'the-token']), $this->jsonResponse([])]);
+        $driver = $this->driver(['url' => 'https://api.sms.ir/']);
+        $this->fakeHttp($driver, [$this->jsonResponse([])]);
 
         $this->send($driver);
 
-        $this->assertSame('https://ws.sms.ir/api/Token', $this->requestUrl(0));
-        $this->assertSame('https://ws.sms.ir/api/MessageSend', $this->requestUrl(1));
+        $this->assertSame('https://api.sms.ir/v1/send/bulk', $this->requestUrl());
     }
 
-    public function testItFetchesTheTokenOnlyOnceForSeveralRecipients() : void
+    public function testItSendsOneRequestPerRecipient() : void
     {
         $driver = $this->driver();
-        $this->fakeHttp($driver, [
-            $this->jsonResponse(['TokenKey' => 'the-token']),
-            $this->jsonResponse([]),
-            $this->jsonResponse([]),
-        ]);
+        $this->fakeHttp($driver, [$this->jsonResponse([]), $this->jsonResponse([])]);
 
         $this->send($driver, ['09120000001', '09120000002']);
 
-        $this->assertSame(3, $this->requestCount());
-        $this->assertStringEndsWith('/api/Token', $this->requestUrl(0));
-        $this->assertStringEndsWith('/api/MessageSend', $this->requestUrl(1));
-        $this->assertStringEndsWith('/api/MessageSend', $this->requestUrl(2));
+        $this->assertSame(2, $this->requestCount());
+        $this->assertSame(['09120000001'], $this->requestJson(0)['mobiles']);
+        $this->assertSame(['09120000002'], $this->requestJson(1)['mobiles']);
     }
 
-    public function testItFailsWhenTheGatewayHandsOutNoToken() : void
+    public function testASecretKeyLeftInTheSettingsDoesNotBringTheLegacyApiBack() : void
     {
-        $driver = $this->driver();
-        $this->fakeHttp($driver, [$this->jsonResponse(['Message' => 'invalid credentials'])]);
-
-        $this->expectException(SendingFailedException::class);
-        $this->expectExceptionMessage('Smsir token could not be generated.');
+        $driver = $this->driver(['apiKey' => 'the-api-key', 'secretKey' => 'the-secret']);
+        $this->fakeHttp($driver, [$this->jsonResponse([])]);
 
         $this->send($driver);
+
+        $this->assertSame(1, $this->requestCount());
+        $this->assertSame('https://api.sms.ir/v1/send/bulk', $this->requestUrl());
+        $this->assertSame('the-api-key', $this->request()->getHeaderLine('X-API-KEY'));
     }
 }

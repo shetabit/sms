@@ -46,6 +46,7 @@ This is a Laravel package for sms gateway integration. This package requires `PH
 | `asanak` | [Asanak](https://asanak.com/) | — |
 | `clockwork` | [Clockwork](https://www.clockworksms.com/) | `composer require mediaburst/clockworksms` |
 | `farazsms` | [Faraz SMS](https://farazsms.com/) | — |
+| `ghasedak` | [Ghasedak](https://ghasedak.me/) | — |
 | `ippanel` | [IPPanel](https://ippanel.com/) | — |
 | `kavenegar` | [Kavenegar](https://kavenegar.com/) | `composer require kavenegar/php` |
 | `linkmobility` | [LINK Mobility](https://www.linkmobility.com/) | — |
@@ -172,11 +173,17 @@ Sms::via('kavenegar')->to(['09xxxxxxxxx'])->message($message)->send();
 
 Drivers that do not know templates ignore them and send the plain text instead.
 
-The `ippanel` driver sends such a message as a pattern of IPPanel: the identifier is the code of the pattern and the
+- The `ippanel` driver sends such a message as a pattern of IPPanel: the identifier is the code of the pattern and the
 params are the values of its variables, keyed by their names.
 
-The `asanak` driver sends such a message through the templates of Asanak: the identifier is the id of the template and
+- The `asanak` driver sends such a message through the templates of Asanak: the identifier is the id of the template and
 the params are the values of its parameters, keyed by their names.
+
+- The `smsir` driver sends such a message through the verify endpoint of SMS.ir: the identifier is the id of the template
+and the params are the values of its parameters, keyed by their names.
+
+- The `ghasedak` driver sends such a message through the OTP templates of Ghasedak: the identifier is the name of the
+template and the params are the values of its inputs, keyed by their names.
 
 ### Notifications
 

@@ -66,9 +66,8 @@ return [
             'from' => 'Your Default From Number',
         ],
         'smsir' => [
-            'url' => 'https://ws.sms.ir',
+            'url' => 'https://api.sms.ir',
             'apiKey' => 'Your Api Key',
-            'secretKey' => 'Your Secret Key',
             'from' => 'Your Default From Number',
         ],
         // Requires: ext-soap
@@ -101,6 +100,10 @@ return [
             'password' => 'Your Password',
             'from' => 'Your Default From Number',
             'sendToBlackList' => true, // Deliver to numbers that blocked advertising messages as well.
+        'ghasedak' => [
+            'url' => 'https://gateway.ghasedak.me/rest/api/v1/WebService',
+            'apiKey' => 'Your Api Key',
+            'from' => 'Your Default From Number',
         ],
     ],
 
@@ -130,5 +133,6 @@ return [
         'smsgatewayme' => \Shetabit\Sms\Drivers\SmsGatewayMe::class,
         'ippanel' => \Shetabit\Sms\Drivers\Ippanel::class,
         'asanak' => \Shetabit\Sms\Drivers\Asanak::class,
+        'ghasedak' => \Shetabit\Sms\Drivers\Ghasedak::class,
     ],
 ];

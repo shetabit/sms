@@ -5,13 +5,10 @@ namespace Shetabit\Sms\Drivers;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Shetabit\Sms\Abstracts\Driver;
-use Shetabit\Sms\Exceptions\SendingFailedException;
 
 class Smsir extends Driver
 {
     protected Client $client;
-
-    protected string|null $token = null;
 
     /**
      * @param array<string, mixed> $settings
@@ -28,63 +25,63 @@ class Smsir extends Driver
         return new Client();
     }
 
-    /**
-     * @throws SendingFailedException
-     */
     protected function sendTo(string $recipient) : ResponseInterface
     {
-        return $this->client->request('POST', $this->url('/api/MessageSend'), $this->payload($recipient));
+        if ($this->message->usesTemplate()) {
+            return $this->client->request('POST', $this->url('/v1/send/verify'), $this->verifyPayload($recipient));
+        }
+
+        return $this->client->request('POST', $this->url('/v1/send/bulk'), $this->payload($recipient));
     }
 
     /**
      * @return array{json: array<string, mixed>, headers: array<string, string>, connect_timeout: int}
-     *
-     * @throws SendingFailedException
      */
     protected function payload(string $recipient) : array
     {
         return [
             'json' => [
-                'Messages' => [$this->message->toString()],
-                'MobileNumbers' => [$recipient],
-                'LineNumber' => $this->setting('from'),
+                'lineNumber' => (int) $this->setting('from'),
+                'messageText' => $this->message->toString(),
+                'mobiles' => [$recipient],
             ],
-            'headers' => [
-                'x-sms-ir-secure-token' => $this->token(),
-            ],
+            'headers' => $this->headers(),
             'connect_timeout' => 30,
         ];
     }
 
     /**
-     * @throws SendingFailedException
+     * @return array{json: array<string, mixed>, headers: array<string, string>, connect_timeout: int}
      */
-    protected function token() : string
+    protected function verifyPayload(string $recipient) : array
     {
-        return $this->token ??= $this->fetchToken();
+        $template = $this->message->getTemplate();
+        $parameters = [];
+
+        foreach ($template['params'] as $name => $value) {
+            $parameters[] = ['name' => (string) $name, 'value' => (string) $value];
+        }
+
+        return [
+            'json' => [
+                'mobile' => $recipient,
+                'templateId' => (int) $template['identifier'],
+                'parameters' => $parameters,
+            ],
+            'headers' => $this->headers(),
+            'connect_timeout' => 30,
+        ];
     }
 
     /**
-     * @throws SendingFailedException
+     * @return array<string, string>
      */
-    protected function fetchToken() : string
+    protected function headers() : array
     {
-        $response = $this->client->request('POST', $this->url('/api/Token'), [
-            'json' => [
-                'UserApiKey' => $this->setting('apiKey'),
-                'SecretKey' => $this->setting('secretKey'),
-            ],
-            'connect_timeout' => 30,
-        ]);
-
-        $body = json_decode((string) $response->getBody(), true);
-        $token = is_array($body) ? ($body['TokenKey'] ?? null) : null;
-
-        if (! is_string($token) || $token === '') {
-            throw new SendingFailedException('Smsir token could not be generated.');
-        }
-
-        return $token;
+        return [
+            'X-API-KEY' => $this->setting('apiKey'),
+            'Accept' => 'application/json',
+        ];
     }
 
     protected function url(string $path) : string
