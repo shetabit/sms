@@ -106,6 +106,11 @@ return [
             'apiKey' => 'Your Api Key',
             'from' => 'Your Default From Number',
         ],
+        'amootsms' => [
+            'url' => 'https://portal.amootsms.com/rest',
+            'token' => 'Your Token',
+            'from' => 'Your Default From Number',
+        ],
     ],
 
     /*
@@ -135,5 +140,6 @@ return [
         'ippanel' => \Shetabit\Sms\Drivers\Ippanel::class,
         'asanak' => \Shetabit\Sms\Drivers\Asanak::class,
         'ghasedak' => \Shetabit\Sms\Drivers\Ghasedak::class,
+        'amootsms' => \Shetabit\Sms\Drivers\Amootsms::class,
     ],
 ];

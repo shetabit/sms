@@ -36,6 +36,8 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
   that uses a template is sent through the templates of Asanak.
 - The `ghasedak` driver for [Ghasedak](https://ghasedak.me/), which sends through the REST API of the gateway. A
   message that uses a template is sent through the OTP templates of Ghasedak.
+- The `amootsms` driver for [AmootSMS](https://www.amootsms.com/), which sends through the REST API of the gateway.
+  A message that uses a template is sent as a pattern of AmootSMS.
 
 ### Changed
 

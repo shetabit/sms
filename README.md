@@ -43,6 +43,7 @@ This is a Laravel package for sms gateway integration. This package requires `PH
 
 | Driver | Gateway | Needs |
 | --- | --- | --- |
+| `amootsms` | [AmootSMS](https://www.amootsms.com/) | — |
 | `asanak` | [Asanak](https://asanak.com/) | — |
 | `clockwork` | [Clockwork](https://www.clockworksms.com/) | `composer require mediaburst/clockworksms` |
 | `farazsms` | [Faraz SMS](https://farazsms.com/) | — |
@@ -184,6 +185,10 @@ and the params are the values of its parameters, keyed by their names.
 
 - The `ghasedak` driver sends such a message through the OTP templates of Ghasedak: the identifier is the name of the
 template and the params are the values of its inputs, keyed by their names.
+
+- The `amootsms` driver sends such a message as a pattern of AmootSMS: the identifier is the code of the pattern and the
+params are the values of its variables, in the order the pattern lists them. The gateway takes the values comma
+separated, so a value with a comma in it is refused with an `InvalidMessageException`.
 
 ### Notifications
 
