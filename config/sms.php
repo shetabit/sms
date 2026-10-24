@@ -66,9 +66,8 @@ return [
             'from' => 'Your Default From Number',
         ],
         'smsir' => [
-            'url' => 'https://ws.sms.ir',
+            'url' => 'https://api.sms.ir',
             'apiKey' => 'Your Api Key',
-            'secretKey' => 'Your Secret Key',
             'from' => 'Your Default From Number',
         ],
         // Requires: ext-soap
