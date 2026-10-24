@@ -89,6 +89,12 @@ return [
             'apiToken' => 'Your Api Token',
             'from' => 'Your Default Device ID',
         ],
+        // Every number, the sender as well as the recipients, in E.164 format: +989120000000
+        'ippanel' => [
+            'url' => 'https://edge.ippanel.com/v1',
+            'apiKey' => 'Your Api Key',
+            'from' => 'Your Default From Number',
+        ],
         'amootsms' => [
             'url' => 'https://portal.amootsms.com/rest',
             'token' => 'Your Token',
@@ -120,6 +126,7 @@ return [
         'tsms' => \Shetabit\Sms\Drivers\Tsms::class,
         'farazsms' => \Shetabit\Sms\Drivers\Farazsms::class,
         'smsgatewayme' => \Shetabit\Sms\Drivers\SmsGatewayMe::class,
+        'ippanel' => \Shetabit\Sms\Drivers\Ippanel::class,
         'amootsms' => \Shetabit\Sms\Drivers\Amootsms::class,
     ],
 ];
